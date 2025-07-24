@@ -1,12 +1,13 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Menu, X, User, LogOut, History, Settings, Brain, MessageCircle } from "lucide-react";
+import { Menu, X, User, LogOut, History, Settings, Brain, MessageCircle, Clock } from "lucide-react";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { signOut } from "firebase/auth";
 import { auth } from "@/config/firebase";
 import { toast } from "sonner";
 import AuthModal from "./AuthModal";
+import { useAppContext } from "@/contexts/AppContext";
 
 interface NavigationHeaderProps {
   currentView: string;
@@ -17,6 +18,7 @@ const NavigationHeader = ({ currentView, onViewChange }: NavigationHeaderProps) 
   const [user, loading] = useAuthState(auth);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const { activeSessionType, timeRemaining, isSessionActive } = useAppContext();
 
   const handleLogout = async () => {
     try {
@@ -30,6 +32,7 @@ const NavigationHeader = ({ currentView, onViewChange }: NavigationHeaderProps) 
 
   const navItems = [
     { id: "study", label: "Study Assistant", icon: Brain },
+    { id: "study-sessions", label: "Study Sessions", icon: Clock },
     { id: "arivu", label: "Arivu Chat", icon: MessageCircle },
     { id: "history", label: "Study History", icon: History },
     { id: "profile", label: "Profile", icon: Settings },
@@ -73,6 +76,17 @@ const NavigationHeader = ({ currentView, onViewChange }: NavigationHeaderProps) 
 
             {/* User Section */}
             <div className="flex items-center gap-2 md:gap-4">
+              {/* Active Session Indicator */}
+              {activeSessionType && (
+                <div className="hidden sm:flex items-center gap-2 px-3 py-1 bg-gradient-to-r from-green-500 to-blue-600 text-white rounded-full text-sm font-medium animate-pulse">
+                  <Clock className="h-3 w-3" />
+                  <span>
+                    {Math.floor((timeRemaining || 0) / 60)}:{((timeRemaining || 0) % 60).toString().padStart(2, '0')}
+                  </span>
+                  {!isSessionActive && <span className="text-xs">(Paused)</span>}
+                </div>
+              )}
+              
               {user ? (
                 <div className="flex items-center gap-2 md:gap-3">
                   <div className="hidden sm:block text-right">

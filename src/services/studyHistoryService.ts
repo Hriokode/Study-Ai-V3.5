@@ -8,7 +8,7 @@ export interface StudyHistoryRecord {
   id?: string;
   userId: string;
   timestamp: Timestamp;
-  type: "analysis" | "quiz";
+  type: "analysis" | "quiz" | "study-session";
   fileName?: string;
   fileHash?: string; // Added for better file recognition
   fileSize?: number; // Added for better file recognition
@@ -48,7 +48,7 @@ const generateFileHash = async (file: File): Promise<string> => {
 
 export const saveStudyHistory = async (
   userId: string,
-  type: "analysis" | "quiz",
+  type: "analysis" | "quiz" | "study-session",
   data: AnalysisResult[] | QuestionResult | any,
   options: {
     fileName?: string;

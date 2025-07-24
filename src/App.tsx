@@ -12,6 +12,8 @@ import StudyHistory from "./components/StudyHistory";
 import UserProfile from "./components/UserProfile";
 import ArivuChatbot from "./components/ArivuChatbot";
 import LandingPage from "./components/LandingPage";
+import StudySessionSelector from "./components/StudySessionSelector";
+import ActiveStudySession from "./components/ActiveStudySession";
 import { AppProvider } from "./contexts/AppContext";
 import { useAppContext } from "./contexts/AppContext";
 
@@ -20,7 +22,9 @@ const queryClient = new QueryClient();
 const AppContent = () => {
   const [user, loading] = useAuthState(auth);
   const [currentView, setCurrentView] = useState("study");
-  const { questionResult } = useAppContext();
+  const { questionResult, activeSessionType } = useAppContext();
+  const [selectedStudyTemplate, setSelectedStudyTemplate] = useState<any>(null);
+  const [studySessionTopic, setStudySessionTopic] = useState<string>("");
 
   // Handle navigation to quiz when retake quiz is triggered from study history
   React.useEffect(() => {
@@ -46,6 +50,33 @@ const AppContent = () => {
 
   const renderCurrentView = () => {
     switch (currentView) {
+      case "study-sessions":
+        if (selectedStudyTemplate) {
+          return (
+            <ActiveStudySession
+              template={selectedStudyTemplate}
+              studyTopic={studySessionTopic}
+              onBack={() => {
+                setSelectedStudyTemplate(null);
+                setStudySessionTopic("");
+              }}
+              onComplete={() => {
+                setSelectedStudyTemplate(null);
+                setStudySessionTopic("");
+                setCurrentView("study");
+              }}
+            />
+          );
+        }
+        return (
+          <StudySessionSelector
+            onStartSession={(template, topic) => {
+              setSelectedStudyTemplate(template);
+              setStudySessionTopic(topic || "");
+            }}
+            onBack={() => setCurrentView("study")}
+          />
+        );
       case "history":
         return <StudyHistory />;
       case "profile":
